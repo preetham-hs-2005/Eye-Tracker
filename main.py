@@ -35,10 +35,11 @@ def load_cascades() -> tuple[cv2.CascadeClassifier, cv2.CascadeClassifier]:
     return face_cascade, eye_cascade
 
 
-def select_eye(eyes: np.ndarray) -> Optional[tuple[int, int, int, int]]:
+def select_eyes(eyes: np.ndarray, max_eyes: int = 2) -> list[tuple[int, int, int, int]]:
     if len(eyes) == 0:
-        return None
-    return max(eyes, key=lambda rect: rect[2] * rect[3])
+        return []
+    sorted_eyes = sorted(eyes, key=lambda rect: rect[2] * rect[3], reverse=True)
+    return sorted_eyes[:max_eyes]
 
 
 def center_of(rect: tuple[int, int, int, int], offset: Point = (0, 0)) -> Point:
@@ -76,7 +77,8 @@ def main() -> None:
     if not cap.isOpened():
         raise RuntimeError("Unable to open camera. Try a different --camera index.")
 
-    history: Deque[Point] = collections.deque(maxlen=max(1, args.history))
+    history_left: Deque[Point] = collections.deque(maxlen=max(1, args.history))
+    history_right: Deque[Point] = collections.deque(maxlen=max(1, args.history))
     fps_timer = time.time()
     frame_count = 0
     fps = 0.0
@@ -99,7 +101,8 @@ def main() -> None:
                 minSize=(80, 80),
             )
 
-            eye_center: Optional[Point] = None
+            left_center: Optional[Point] = None
+            right_center: Optional[Point] = None
             if len(faces) > 0:
                 face = max(faces, key=lambda rect: rect[2] * rect[3])
                 x, y, w, h = face
@@ -110,10 +113,23 @@ def main() -> None:
                     minNeighbors=8,
                     minSize=(20, 20),
                 )
-                eye = select_eye(eyes)
-                if eye is not None:
-                    eye_center = center_of(eye, offset=(x, y))
-                    history.append(eye_center)
+                selected_eyes = select_eyes(eyes)
+                eye_centers = [center_of(eye, offset=(x, y)) for eye in selected_eyes]
+                face_center_x = x + w // 2
+                if len(eye_centers) == 2:
+                    eye_centers.sort(key=lambda point: point[0])
+                    left_center, right_center = eye_centers
+                elif len(eye_centers) == 1:
+                    only_eye = eye_centers[0]
+                    if only_eye[0] < face_center_x:
+                        left_center = only_eye
+                    else:
+                        right_center = only_eye
+
+                if left_center is not None:
+                    history_left.append(left_center)
+                if right_center is not None:
+                    history_right.append(right_center)
 
                 if args.show_debug:
                     cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 255, 0), 2)
@@ -126,12 +142,20 @@ def main() -> None:
                             1,
                         )
 
-            smoothed = smooth_point(history)
-            if smoothed is not None:
-                cv2.circle(frame, smoothed, 6, (0, 0, 255), -1)
-                draw_status(frame, f"Eye center: {smoothed}")
-            else:
-                draw_status(frame, "Eye not detected")
+            smoothed_left = smooth_point(history_left)
+            smoothed_right = smooth_point(history_right)
+            status_line = 0
+            if smoothed_left is not None:
+                cv2.circle(frame, smoothed_left, 6, (0, 0, 255), -1)
+                draw_status(frame, f"Left eye: {smoothed_left}", line=status_line)
+                status_line += 1
+            if smoothed_right is not None:
+                cv2.circle(frame, smoothed_right, 6, (255, 0, 0), -1)
+                draw_status(frame, f"Right eye: {smoothed_right}", line=status_line)
+                status_line += 1
+            if smoothed_left is None and smoothed_right is None:
+                draw_status(frame, "Eyes not detected", line=status_line)
+                status_line += 1
 
             frame_count += 1
             if frame_count >= 10:
@@ -140,7 +164,7 @@ def main() -> None:
                 fps_timer = now
                 frame_count = 0
 
-            draw_status(frame, f"FPS: {fps:.1f}", line=1)
+            draw_status(frame, f"FPS: {fps:.1f}", line=status_line)
 
             cv2.imshow("Eye Tracker", frame)
             if cv2.waitKey(1) & 0xFF == ord("q"):
