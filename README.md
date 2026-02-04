@@ -3,8 +3,8 @@
 Real-time eye tracking IPCV demo using OpenCV Haar cascades.
 
 ## Features
-- Detects face + eye region in real time.
-- Tracks eye center with simple smoothing.
+- Detects face + both eyes in real time.
+- Tracks left/right eye centers with simple smoothing.
 - Optional debug overlays and mirrored camera feed.
 
 ## Setup
