@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-asphalt text-white min-h-screen;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.glass-card {
+  @apply bg-white/10 backdrop-blur-md border border-white/20 rounded-xl shadow-glass;
+}
+
+.racing-title {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

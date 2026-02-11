@@ -1,0 +1,22 @@
+export const raceCalendar2026 = [
+  { raceName: 'Bahrain Grand Prix', circuit: 'Bahrain International Circuit', country: 'Bahrain', qualifyingTime: '2026-03-07T15:00:00Z', sprintWeekend: false, raceStartTime: '2026-03-08T15:00:00Z' },
+  { raceName: 'Saudi Arabian Grand Prix', circuit: 'Jeddah Corniche Circuit', country: 'Saudi Arabia', qualifyingTime: '2026-03-14T18:00:00Z', sprintWeekend: false, raceStartTime: '2026-03-15T18:00:00Z' },
+  { raceName: 'Australian Grand Prix', circuit: 'Albert Park Circuit', country: 'Australia', qualifyingTime: '2026-03-28T05:00:00Z', sprintWeekend: false, raceStartTime: '2026-03-29T05:00:00Z' },
+  { raceName: 'Chinese Grand Prix', circuit: 'Shanghai International Circuit', country: 'China', qualifyingTime: '2026-04-11T07:00:00Z', sprintWeekend: true, raceStartTime: '2026-04-12T07:00:00Z' },
+  { raceName: 'Miami Grand Prix', circuit: 'Miami International Autodrome', country: 'United States', qualifyingTime: '2026-05-02T20:00:00Z', sprintWeekend: true, raceStartTime: '2026-05-03T20:00:00Z' },
+  { raceName: 'Emilia Romagna Grand Prix', circuit: 'Imola Circuit', country: 'Italy', qualifyingTime: '2026-05-16T14:00:00Z', sprintWeekend: false, raceStartTime: '2026-05-17T14:00:00Z' },
+  { raceName: 'Monaco Grand Prix', circuit: 'Circuit de Monaco', country: 'Monaco', qualifyingTime: '2026-05-23T14:00:00Z', sprintWeekend: false, raceStartTime: '2026-05-24T14:00:00Z' },
+  { raceName: 'Spanish Grand Prix', circuit: 'Circuit de Barcelona-Catalunya', country: 'Spain', qualifyingTime: '2026-06-06T14:00:00Z', sprintWeekend: false, raceStartTime: '2026-06-07T14:00:00Z' },
+  { raceName: 'Canadian Grand Prix', circuit: 'Circuit Gilles Villeneuve', country: 'Canada', qualifyingTime: '2026-06-13T18:00:00Z', sprintWeekend: false, raceStartTime: '2026-06-14T18:00:00Z' },
+  { raceName: 'British Grand Prix', circuit: 'Silverstone Circuit', country: 'United Kingdom', qualifyingTime: '2026-07-04T14:00:00Z', sprintWeekend: true, raceStartTime: '2026-07-05T14:00:00Z' },
+  { raceName: 'Belgian Grand Prix', circuit: 'Spa-Francorchamps', country: 'Belgium', qualifyingTime: '2026-07-25T14:00:00Z', sprintWeekend: true, raceStartTime: '2026-07-26T14:00:00Z' },
+  { raceName: 'Dutch Grand Prix', circuit: 'Circuit Zandvoort', country: 'Netherlands', qualifyingTime: '2026-08-29T13:00:00Z', sprintWeekend: false, raceStartTime: '2026-08-30T13:00:00Z' },
+  { raceName: 'Italian Grand Prix', circuit: 'Monza Circuit', country: 'Italy', qualifyingTime: '2026-09-05T14:00:00Z', sprintWeekend: false, raceStartTime: '2026-09-06T14:00:00Z' },
+  { raceName: 'Singapore Grand Prix', circuit: 'Marina Bay Street Circuit', country: 'Singapore', qualifyingTime: '2026-09-19T13:00:00Z', sprintWeekend: false, raceStartTime: '2026-09-20T12:00:00Z' },
+  { raceName: 'United States Grand Prix', circuit: 'Circuit of the Americas', country: 'United States', qualifyingTime: '2026-10-17T21:00:00Z', sprintWeekend: true, raceStartTime: '2026-10-18T19:00:00Z' },
+  { raceName: 'Mexico City Grand Prix', circuit: 'Autodromo Hermanos Rodriguez', country: 'Mexico', qualifyingTime: '2026-10-31T20:00:00Z', sprintWeekend: false, raceStartTime: '2026-11-01T20:00:00Z' },
+  { raceName: 'Sao Paulo Grand Prix', circuit: 'Interlagos', country: 'Brazil', qualifyingTime: '2026-11-07T18:00:00Z', sprintWeekend: true, raceStartTime: '2026-11-08T17:00:00Z' },
+  { raceName: 'Las Vegas Grand Prix', circuit: 'Las Vegas Strip Circuit', country: 'United States', qualifyingTime: '2026-11-21T05:00:00Z', sprintWeekend: false, raceStartTime: '2026-11-22T05:00:00Z' },
+  { raceName: 'Qatar Grand Prix', circuit: 'Lusail International Circuit', country: 'Qatar', qualifyingTime: '2026-11-28T16:00:00Z', sprintWeekend: true, raceStartTime: '2026-11-29T16:00:00Z' },
+  { raceName: 'Abu Dhabi Grand Prix', circuit: 'Yas Marina Circuit', country: 'United Arab Emirates', qualifyingTime: '2026-12-05T13:00:00Z', sprintWeekend: false, raceStartTime: '2026-12-06T13:00:00Z' }
+];
