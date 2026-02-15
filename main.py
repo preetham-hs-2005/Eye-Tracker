@@ -1,10 +1,11 @@
-#!/usr/bin/env python3
-"""Real-time gaze-controlled cursor with blink click support."""
+"""Real-time gaze-controlled cursor with blink click support (MediaPipe Tasks API)."""
 from __future__ import annotations
 
 import argparse
 import collections
 import time
+import urllib.request
+from pathlib import Path
 from typing import Deque, Iterable, Optional, Tuple
 
 import cv2
@@ -19,10 +20,20 @@ LEFT_EYE = {"left": 33, "right": 133, "top": 159, "bottom": 145}
 RIGHT_EYE = {"left": 362, "right": 263, "top": 386, "bottom": 374}
 LEFT_IRIS = [468, 469, 470, 471, 472]
 RIGHT_IRIS = [473, 474, 475, 476, 477]
+DEFAULT_MODEL_URL = (
+    "https://storage.googleapis.com/mediapipe-models/face_landmarker/"
+    "face_landmarker/float16/latest/face_landmarker.task"
+)
+
+
+BaseOptions = mp.tasks.BaseOptions
+FaceLandmarker = mp.tasks.vision.FaceLandmarker
+FaceLandmarkerOptions = mp.tasks.vision.FaceLandmarkerOptions
+RunningMode = mp.tasks.vision.RunningMode
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Eye-controlled cursor using MediaPipe Face Mesh.")
+    parser = argparse.ArgumentParser(description="Eye-controlled cursor using latest MediaPipe Face Landmarker.")
     parser.add_argument("--camera", type=int, default=0, help="Camera index.")
     parser.add_argument("--flip", action="store_true", help="Mirror the frame horizontally.")
     parser.add_argument("--history", type=int, default=6, help="Smoothing history for cursor points.")
@@ -32,7 +43,25 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--click-cooldown", type=float, default=0.6, help="Seconds between clicks.")
     parser.add_argument("--show-debug", action="store_true", help="Show landmarks and tracking overlays.")
     parser.add_argument("--dry-run", action="store_true", help="Do not move/click cursor, only visualize.")
+    parser.add_argument(
+        "--model-path",
+        default="models/face_landmarker.task",
+        help="Path to MediaPipe Face Landmarker model file (.task).",
+    )
+    parser.add_argument(
+        "--model-url",
+        default=DEFAULT_MODEL_URL,
+        help="URL used to auto-download the model when --model-path is missing.",
+    )
     return parser.parse_args()
+
+
+def ensure_model(model_path: Path, model_url: str) -> Path:
+    if model_path.exists():
+        return model_path
+    model_path.parent.mkdir(parents=True, exist_ok=True)
+    urllib.request.urlretrieve(model_url, model_path)
+    return model_path
 
 
 def landmark_to_pixel(landmark, width: int, height: int) -> Point:
@@ -94,6 +123,8 @@ def draw_status(frame, text: str, line: int) -> None:
 
 def main() -> None:
     args = parse_args()
+    model_path = ensure_model(Path(args.model_path), args.model_url)
+
     cap = cv2.VideoCapture(args.camera)
     if not cap.isOpened():
         raise RuntimeError("Unable to open camera. Try a different --camera index.")
@@ -105,20 +136,22 @@ def main() -> None:
     blink_frames = 0
     last_click = 0.0
 
-    mp_face_mesh = mp.solutions.face_mesh
-    face_mesh = mp_face_mesh.FaceMesh(
-        static_image_mode=False,
-        max_num_faces=1,
-        refine_landmarks=True,
-        min_detection_confidence=0.5,
+    options = FaceLandmarkerOptions(
+        base_options=BaseOptions(model_asset_path=str(model_path)),
+        running_mode=RunningMode.VIDEO,
+        num_faces=1,
+        min_face_detection_confidence=0.5,
+        min_face_presence_confidence=0.5,
         min_tracking_confidence=0.5,
+        output_face_blendshapes=False,
+        output_facial_transformation_matrixes=False,
     )
 
     fps_timer = time.time()
     frame_counter = 0
     fps = 0.0
 
-    try:
+    with FaceLandmarker.create_from_options(options) as face_landmarker:
         while True:
             ret, frame = cap.read()
             if not ret:
@@ -129,11 +162,13 @@ def main() -> None:
 
             height, width = frame.shape[:2]
             rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            result = face_mesh.process(rgb)
+            mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
+            timestamp_ms = int(time.time() * 1000)
+            result = face_landmarker.detect_for_video(mp_image, timestamp_ms)
 
             status_line = 0
-            if result.multi_face_landmarks:
-                landmarks = result.multi_face_landmarks[0].landmark
+            if result.face_landmarks:
+                landmarks = result.face_landmarks[0]
 
                 left_iris = iris_center(landmarks, LEFT_IRIS, width, height)
                 right_iris = iris_center(landmarks, RIGHT_IRIS, width, height)
@@ -197,10 +232,9 @@ def main() -> None:
             cv2.imshow("Gaze Cursor Control", frame)
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
-    finally:
-        face_mesh.close()
-        cap.release()
-        cv2.destroyAllWindows()
+
+    cap.release()
+    cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
