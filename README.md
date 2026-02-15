@@ -1,4 +1,4 @@
-# Eye-Tracker
+# Implementation of a Real-Time Gaze Estimation System
 
 Real-time eye tracking IPCV demo using OpenCV Haar cascades.
 
