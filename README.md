@@ -1,13 +1,11 @@
-# Eye-Tracker (Gaze + Cursor Control)
+# Implementation of a Real-Time Gaze Estimation System
 
-A real-time IPCV project that uses your eye movement to move the mouse cursor and supports blink-to-click.
+Real-time eye tracking IPCV demo using OpenCV Haar cascades.
 
 ## Features
-- Real-time face/eye landmark tracking with MediaPipe Face Mesh.
-- Cursor control using both iris centers (smoothed for stability).
-- Blink detection using Eye Aspect Ratio (EAR) for mouse click actions.
-- Dry-run mode for safe testing without moving your real cursor.
-- Debug overlays for iris points, gaze point, EAR, and FPS.
+- Detects face + both eyes in real time.
+- Tracks left/right eye centers with simple smoothing.
+- Optional debug overlays and mirrored camera feed.
 
 ## Setup
 ```bash
@@ -20,24 +18,8 @@ pip install -r requirements.txt
 ```bash
 python main.py --camera 0 --flip --show-debug
 ```
-
-### Safe first run (recommended)
-```bash
-python main.py --dry-run --flip --show-debug
-```
-
-## Controls
-- Press `q` to quit.
-- Blink naturally to trigger click (tune thresholds below if needed).
-
-## Useful tuning flags
-- `--margin 0.15` : keeps edge dead-zones so tiny eye jitter does not slam cursor to edges.
-- `--history 6` : increases smoothing window (higher = smoother, slower).
-- `--blink-threshold 0.20` : lower value makes blink click less sensitive.
-- `--blink-frames 2` : consecutive frames below threshold needed to click.
-- `--click-cooldown 0.6` : min seconds between generated clicks.
+Press `q` to quit.
 
 ## Notes
-- Good lighting and a stable camera improve performance a lot.
-- If cursor is too sensitive, increase `--history` or `--margin`.
-- If blink clicks are accidental, reduce `--blink-threshold` or increase `--blink-frames`.
+- Lighting and camera placement affect detection quality.
+- If detection is unstable, try adjusting `--scale` or `--neighbors`.
